@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  producer:
+    build:
+      context: ./producer
+      dockerfile: Dockerfile
+    ports:
+      - "${PRODUCER_PORT}:${PRODUCER_PORT}"
+    volumes:
+      - ./producer:/app
+      - /app/node_modules
+      - ./shared/users.proto:/app/users.proto:ro
+    env_file:
+      - .env
+    command: yarn start:dev
+    networks:
+      - app_network
+
+  consumer:
+    build:
+      context: ./consumer
+      dockerfile: Dockerfile
+    volumes:
+      - ./consumer:/app
+      - /app/node_modules
+      - ./shared/users.proto:/app/users.proto:ro
+    env_file:
+      - .env
+    depends_on:
+      producer:
+        condition: service_started
+    command: yarn start
+    networks:
+      - app_network
+    ports:
+      - "${CONSUMER_PORT}:${CONSUMER_PORT}"
+
+networks:
+  app_network:
+    driver: bridge
