@@ -1,5 +1,7 @@
 # compiled output
 /dist
+producer/dist
+consumer/dist
 /node_modules
 
 # Logs
